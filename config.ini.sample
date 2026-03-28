@@ -1,3 +1,7 @@
+[Device]
+name = mh-z19c
+port = /dev/tty.usbserial-10
+
 [InfluxDB]
 url = http://influxdb:8086
 org = org-name

@@ -1,6 +1,8 @@
 #!/bin/bash
 
-ls -l /dev/ttyAMA0
+if [ "$(uname)" = "Linux" ]; then
+    ls -l /dev/ttyAMA0
+fi
 
 SCRIPT_DIR=$(cd $(dirname $0); pwd)
 cd "${SCRIPT_DIR}"

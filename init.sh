@@ -6,5 +6,8 @@
 # Copyright (c) 2026 gcch
 #
 
-sudo apt install swig liblgpio-dev
+if [ "$(uname)" = "Linux" ]; then
+    sudo apt install swig liblgpio-dev
+fi
+
 uv sync

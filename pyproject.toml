@@ -6,5 +6,5 @@ readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
     "influxdb-client>=1.50.0",
-    "mh-z19>=3.1.7",
+    "pyftdi>=0.57.1; sys_platform == 'darwin'",
 ]
