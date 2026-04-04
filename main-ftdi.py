@@ -1,6 +1,7 @@
 import datetime
 import configparser
 import socket
+import time
 import influxdb_client
 from influxdb_client.client.write_api import SYNCHRONOUS
 from pyftdi.serialext import serial_for_url
@@ -11,14 +12,21 @@ CONFIG_FILE = "config.ini"
 config.read(CONFIG_FILE, encoding="utf8")
 
 
-def read_mhz19(port: str) -> dict:
+def read_mhz19(port: str, retries: int = 3) -> dict:
     """Read CO2, temperature, and diagnostic data from MH-Z19 via UART."""
     CMD = b"\xff\x01\x86\x00\x00\x00\x00\x00\x79"
-    with serial_for_url(port, baudrate=9600, timeout=2) as ser:
-        ser.write(CMD)
-        resp = ser.read(9)
-    if len(resp) != 9 or resp[0] != 0xFF or resp[1] != 0x86:
-        raise ValueError(f"Invalid response: {resp.hex()}")
+    resp = b""
+    for attempt in range(retries):
+        with serial_for_url(port, baudrate=9600, timeout=2) as ser:
+            ser.reset_input_buffer()
+            ser.write(CMD)
+            resp = ser.read(9)
+        if len(resp) == 9 and resp[0] == 0xFF and resp[1] == 0x86:
+            break
+        if attempt < retries - 1:
+            time.sleep(1)
+    else:
+        raise ValueError(f"Invalid response after {retries} attempts: {resp.hex()}")
     checksum = (~sum(resp[1:8]) + 1) & 0xFF
     if checksum != resp[8]:
         raise ValueError("Checksum mismatch")
@@ -32,12 +40,12 @@ def read_mhz19(port: str) -> dict:
 
 
 def main():
-    device_name = config.get("Device", "name",     fallback="mh_z19c")
-    port        = config.get("Device", "port",     fallback="ftdi://ftdi:4232:1:1b/3")
+    device_name = config.get("Device", "name",  fallback="mh_z19c")
+    port        = config.get("Device", "port",  fallback="ftdi://ftdi:4232:1:1b/3")
     hostname    = socket.gethostname()
 
     data = read_mhz19(port)
-    #print(data)
+    print(data)
 
     timestamp = int(datetime.datetime.now(datetime.timezone.utc).timestamp())
     df = {
