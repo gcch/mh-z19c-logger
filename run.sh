@@ -1,9 +1,11 @@
 #!/bin/bash
 
-if [ "$(uname)" = "Linux" ]; then
-    ls -l /dev/ttyAMA0
-fi
-
 SCRIPT_DIR=$(cd $(dirname $0); pwd)
 cd "${SCRIPT_DIR}"
-$HOME/.local/bin/uv run "${SCRIPT_DIR}/main.py"
+
+if [ -f /proc/device-tree/model ] && grep -q "Raspberry Pi" /proc/device-tree/model; then
+    ls -l /dev/ttyAMA0
+    ${SCRIPT_DIR}/.venv/bin/python "${SCRIPT_DIR}/main-serial.py"
+else
+    ${SCRIPT_DIR}/.venv/bin/python "${SCRIPT_DIR}/main-ftdi.py"
+fi
