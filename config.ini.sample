@@ -1,6 +1,7 @@
 [Device]
 name = mh-z19c
 port = /dev/tty.usbserial-10
+#port = ftdi://ftdi:4232/3
 
 [InfluxDB]
 url = http://influxdb:8086
