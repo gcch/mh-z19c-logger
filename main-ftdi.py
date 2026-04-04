@@ -16,19 +16,22 @@ def read_mhz19(port: str, retries: int = 3) -> dict:
     """Read CO2, temperature, and diagnostic data from MH-Z19 via UART."""
     CMD = b"\xff\x01\x86\x00\x00\x00\x00\x00\x79"
     resp = b""
-    for attempt in range(retries):
-        with serial_for_url(port, baudrate=9600, timeout=2) as ser:
+    ser = serial_for_url(port, baudrate=9600, timeout=2)
+    try:
+        for attempt in range(retries):
             ser.reset_input_buffer()
             ser.reset_output_buffer()
             time.sleep(0.1)
             ser.write(CMD)
             resp = ser.read(9)
-        if len(resp) == 9 and resp[0] == 0xFF and resp[1] == 0x86:
-            break
-        if attempt < retries - 1:
-            time.sleep(1)
-    else:
-        raise ValueError(f"Invalid response after {retries} attempts: {resp.hex()}")
+            if len(resp) == 9 and resp[0] == 0xFF and resp[1] == 0x86:
+                break
+            if attempt < retries - 1:
+                time.sleep(1)
+        else:
+            raise ValueError(f"Invalid response after {retries} attempts: {resp.hex()}")
+    finally:
+        ser.close()
     checksum = (~sum(resp[1:8]) + 1) & 0xFF
     if checksum != resp[8]:
         raise ValueError("Checksum mismatch")
