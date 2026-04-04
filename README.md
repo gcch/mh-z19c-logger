@@ -39,7 +39,7 @@ vi config.ini
 
 定期実行のため、cron の設定を実施。
 ```
-echo "* 0 * * * root /opt/mh-z19c-logger/run.sh" > /etc/cron.d/mh-z19c-logger
+echo "*/10 * * * * root /opt/mh-z19c-logger/run.sh" > /etc/cron.d/mh-z19c-logger
 ```
 
 
