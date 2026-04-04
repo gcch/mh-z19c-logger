@@ -19,6 +19,8 @@ def read_mhz19(port: str, retries: int = 3) -> dict:
     for attempt in range(retries):
         with serial_for_url(port, baudrate=9600, timeout=2) as ser:
             ser.reset_input_buffer()
+            ser.reset_output_buffer()
+            time.sleep(0.1)
             ser.write(CMD)
             resp = ser.read(9)
         if len(resp) == 9 and resp[0] == 0xFF and resp[1] == 0x86:
