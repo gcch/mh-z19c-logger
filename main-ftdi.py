@@ -50,7 +50,7 @@ def main():
     hostname    = socket.gethostname()
 
     data = read_mhz19(port)
-    print(data)
+    #print(data)
 
     timestamp = int(datetime.datetime.now(datetime.timezone.utc).timestamp())
     df = {
